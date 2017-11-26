@@ -1,0 +1,93 @@
+package ru.unlimit.javapro.patterns;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MediatorApp {
+	public static void main(String[] args) {
+		Chat chat = new TextChat();
+		Userr admin = new Admin("Иван Иваныч",chat);
+		Userr user1 = new SimpleUser("u1", chat);
+		Userr user2 = new SimpleUser("u2", chat);
+		Userr user3 = new SimpleUser("u3", chat);
+		Userr user4 = new SimpleUser("u4", chat);
+		
+		chat.setAdmin(admin);
+		chat.addUserr(user1);
+		chat.addUserr(user2);
+		chat.addUserr(user3);
+		chat.addUserr(user4);
+		
+		user3.setEnable(false);
+		
+		admin.sendMessage("Привет, коллеги");
+		user1.sendMessage("User1 на связи...");
+	}
+
+}
+interface Chat{
+	void sendMessage(String message, Userr Userr);
+	void setAdmin(Userr admin);
+	void addUserr(Userr u);
+}
+class TextChat implements Chat{
+	private Userr admin;
+	private List<Userr> users = new ArrayList<>();
+	
+	public void setAdmin(Userr adm){admin = adm;}
+	public void addUserr(Userr u){
+		if(admin!=null && u instanceof SimpleUser){
+			users.add(u);
+		}
+		else{
+			throw new RuntimeException("Админ не может входить в другой чат!");
+		}
+	}
+	@Override
+	public void sendMessage(String message, Userr user) {
+		if (user instanceof Admin){
+			for(Userr u :  users){
+				u.getMessage(u.getName()+" получает сообщение: ("+user.getName()+": "+message+")");
+			}
+		}
+		else if(user instanceof SimpleUser){
+			for(Userr u :  users){
+				if(u.isEnable()){
+					u.getMessage(u.getName()+" получает сообщение: ("+user.getName()+": "+message+")");
+				}
+			}
+		}
+	}
+	
+}
+
+abstract class Userr{
+	private String name;
+	private Chat chat;
+	private boolean enable = true;
+	public Userr(String name, Chat chat) {
+		this.name = name;
+		this.chat = chat;
+	}
+	
+	public String getName() {return name;}
+	public boolean isEnable() {return enable;}
+	public void setEnable(boolean enable) {this.enable = enable;}
+	public void sendMessage(String message){
+		chat.sendMessage(message, this);
+	}
+	public void getMessage(String message) {
+		System.out.println(message);
+	}
+
+}
+class Admin extends Userr{
+	public Admin(String name, Chat chat) {
+		super(name, chat);
+	}
+}
+class SimpleUser extends Userr{
+	public SimpleUser(String name, Chat chat) {
+		super(name, chat);
+	}
+}

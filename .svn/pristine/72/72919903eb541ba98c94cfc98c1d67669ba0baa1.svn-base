@@ -1,0 +1,13 @@
+package ru.unlimit.javapro.patterns;
+
+public class AdapterApp {
+
+	public static void main(String[] args) {
+		//1-й способ через наследование
+		
+		//2-й способ через 
+		
+
+	}
+
+}
